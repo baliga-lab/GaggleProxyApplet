@@ -25,6 +25,7 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.UUID;
 
 import org.systemsbiology.gaggle.core.*;
 import org.systemsbiology.gaggle.core.datatypes.JSONReader;
@@ -208,10 +209,34 @@ public class GaggleProxyApplet extends JApplet {
     public void SubmitWorkflow(String jsonWorkflow)
     {
         System.out.println("Workflow received: " + jsonWorkflow);
-        JSONReader jsonReader = new JSONReader();
-        jsonReader.createFromJSONString(jsonWorkflow);
+        //JSONReader jsonReader = new JSONReader();
+        //jsonReader.createFromJSONString(jsonWorkflow);
 
         this.goose.SubmitWorkflow(jsonWorkflow);
+    }
+
+    public String StartRecording()
+    {
+        System.out.println("Proxy Applet StartRecording");
+        UUID rid = this.goose.startRecording();
+        if (rid != null)
+        {
+            return rid.toString();
+        }
+        return null;
+    }
+
+    public String StopRecording(String uuid)
+    {
+        if (uuid != null)
+        {
+            System.out.println("Proxy Applet StopRecording");
+            UUID rid = UUID.fromString(uuid);
+            String jsonworkflow = this.goose.stopRecording(rid);
+            System.out.println("Workflow: " + jsonworkflow);
+            return jsonworkflow;
+        }
+        return null;
     }
 
     public boolean ProcessAction(String sourcename, String sourcecommand, String targetname, String targetcommand, int edgetype)

@@ -16,6 +16,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 //import org.apache.commons.logging.Log;
 import org.systemsbiology.gaggle.core.*;
@@ -38,6 +39,9 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     String gooseName = defaultGooseName;
     private String uri = "rmi://localhost/gaggle";
     Boss3 boss;
+    UUID recordSessionID = null;
+    String jsonRecordedWorkflow = null;
+
     Signal hasNewDataSignal = new Signal();
     Signal hasTargetUpdateSignal = new Signal();
 
@@ -247,6 +251,11 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     }
 
+    /***
+     * Handles the status info of the workflow (e.g. currently active node, error info etc)
+     * @param type
+     * @param info
+     */
     public void handleWorkflowInformation(String type, String info)
     {
 
@@ -262,29 +271,11 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
         System.out.println(jsonWorkflow);
         // Testing purpose, remove later !!!
         //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
-
+        this.workflowString = jsonWorkflow;
         int retries = 0;
         while (retries < 2)
         {
-            if (boss == null)
-            {
-                this.workflowString = jsonWorkflow;
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    @Override
-                    public Object run() {
-                        try
-                        {
-                            connectToGaggle();
-                            boss = (Boss3)Naming.lookup(uri);
-                        }
-                        catch (Exception e)
-                        {
-                            System.out.println(e.getMessage());
-                        }
-                        return null;
-                    }
-                });
-            }
+            connectToBoss();
 
             if (boss != null)
             {
@@ -312,20 +303,108 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     System.out.println(e1.getMessage());
                 }
                 if (boss == null)
-                {
                     System.out.println("One more try...");
-                    retries++;
-                }
                 else
                     break;
             }
+            else
+                break;
+            retries++;
+        }
+    }
+
+    public UUID startRecording()
+    {
+        System.out.println("startRecording");
+        connectToBoss();
+        if (boss != null)
+        {
+            try
+            {
+                System.out.println("Calling boss to start recording...");
+                AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                    @Override
+                    public Object run() {
+                        try
+                        {
+                            recordSessionID = boss.startRecordingWorkflow();
+                        }
+                        catch (Exception e)
+                        {
+                            System.out.println(e.getMessage());
+                        }
+                        return null;
+                    }
+                });
+                return recordSessionID;
+            }
+            catch (Exception e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    public String stopRecording(final UUID rid)
+    {
+        System.out.println("stopRecording");
+        connectToBoss();
+        if (boss != null)
+        {
+            try
+            {
+                System.out.println("Calling boss to stop recording...");
+                AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                    @Override
+                    public Object run() {
+                        try
+                        {
+                            jsonRecordedWorkflow = boss.terminateRecordingWorkflow(null);
+                        }
+                        catch (Exception e)
+                        {
+                            System.out.println(e.getMessage());
+                        }
+                        return null;
+                    }
+                });
+                //System.out.println("Recorded workflow: " + jsonRecordedWorkflow);
+                return jsonRecordedWorkflow;
+            }
+            catch (Exception e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    private void connectToBoss()
+    {
+        if (boss == null)
+        {
+            AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                @Override
+                public Object run() {
+                    try
+                    {
+                        connectToGaggle();
+                        boss = (Boss3)Naming.lookup(uri);
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println(e.getMessage());
+                    }
+                    return null;
+                }
+            });
         }
     }
 
     public void connectToGaggle() throws Exception {
     	try {
             connector.connectToGaggle();
-            //boss = (Boss3) Naming.lookup(uri);
     	}
     	catch (Exception e) {
     		System.out.println("Exception trying to connect to Boss:");
