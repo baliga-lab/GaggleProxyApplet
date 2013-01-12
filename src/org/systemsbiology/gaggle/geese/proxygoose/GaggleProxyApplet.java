@@ -226,6 +226,29 @@ public class GaggleProxyApplet extends JApplet {
         return null;
     }
 
+    public String PauseRecording(String uuid)
+    {
+        if (uuid != null)
+        {
+            System.out.println("Proxy Applet PauseRecording");
+            UUID rid = UUID.fromString(uuid);
+            String jsonworkflow = this.goose.pauseRecording(rid);
+            System.out.println("Workflow: " + jsonworkflow);
+            return jsonworkflow;
+        }
+        return null;
+    }
+
+    public void ResumeRecording(String uuid)
+    {
+        if (uuid != null)
+        {
+            System.out.println("Proxy Applet ResumeRecording");
+            UUID rid = UUID.fromString(uuid);
+            this.goose.resumeRecording(rid);
+        }
+    }
+
     public String StopRecording(String uuid)
     {
         if (uuid != null)

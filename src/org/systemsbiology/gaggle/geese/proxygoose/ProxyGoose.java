@@ -360,7 +360,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     public Object run() {
                         try
                         {
-                            jsonRecordedWorkflow = boss.terminateRecordingWorkflow(null);
+                            jsonRecordedWorkflow = boss.terminateRecordingWorkflow(rid);
                         }
                         catch (Exception e)
                         {
@@ -371,6 +371,72 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                 });
                 //System.out.println("Recorded workflow: " + jsonRecordedWorkflow);
                 return jsonRecordedWorkflow;
+            }
+            catch (Exception e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    public String pauseRecording(final UUID rid)
+    {
+        System.out.println("pauseRecording");
+        connectToBoss();
+        if (boss != null)
+        {
+            try
+            {
+                System.out.println("Calling boss to pause recording...");
+                AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                    @Override
+                    public Object run() {
+                        try
+                        {
+                            jsonRecordedWorkflow = boss.pauseRecordingWorkflow(rid);
+                        }
+                        catch (Exception e)
+                        {
+                            System.out.println(e.getMessage());
+                        }
+                        return null;
+                    }
+                });
+                //System.out.println("Recorded workflow: " + jsonRecordedWorkflow);
+                return jsonRecordedWorkflow;
+            }
+            catch (Exception e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    public String resumeRecording(final UUID rid)
+    {
+        System.out.println("resumeRecording");
+        connectToBoss();
+        if (boss != null)
+        {
+            try
+            {
+                System.out.println("Calling boss to resume recording...");
+                AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                    @Override
+                    public Object run() {
+                        try
+                        {
+                            boss.resumeRecordingWorkflow(rid);
+                        }
+                        catch (Exception e)
+                        {
+                            System.out.println(e.getMessage());
+                        }
+                        return null;
+                    }
+                });
             }
             catch (Exception e)
             {
