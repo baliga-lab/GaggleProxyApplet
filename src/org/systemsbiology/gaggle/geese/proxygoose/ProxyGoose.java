@@ -52,6 +52,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     Tuple metadata;
 
     String workflowString;
+    String jsongooseinfo;
     Goose3 self = null;
 
 
@@ -266,7 +267,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     }
 
-    public void SubmitWorkflow(String jsonWorkflow)
+    public String SubmitWorkflow(String jsonWorkflow)
     {
         System.out.println(jsonWorkflow);
         // Testing purpose, remove later !!!
@@ -287,7 +288,9 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                             try
                             {
                                 System.out.println("Submitting workflow...");
-                                boss.submitWorkflow(self, workflowString);
+                                String json = boss.submitWorkflow(self, workflowString);
+                                System.out.println("Submit Workflow returned " + json);
+                                jsongooseinfo = new String(json);
                             }
                             catch (Exception ex)
                             {
@@ -311,6 +314,8 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                 break;
             retries++;
         }
+        System.out.println("Returning " + jsongooseinfo);
+        return jsongooseinfo;
     }
 
     public UUID startRecording()

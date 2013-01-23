@@ -32,6 +32,8 @@ import org.systemsbiology.gaggle.core.datatypes.JSONReader;
 import org.systemsbiology.gaggle.core.datatypes.WorkflowAction;
 import org.systemsbiology.gaggle.core.datatypes.WorkflowComponent;
 
+import static netscape.javascript.JSObject.*;
+
 public class GaggleProxyApplet extends JApplet {
 
 	// Instance variables
@@ -212,7 +214,15 @@ public class GaggleProxyApplet extends JApplet {
         //JSONReader jsonReader = new JSONReader();
         //jsonReader.createFromJSONString(jsonWorkflow);
 
-        this.goose.SubmitWorkflow(jsonWorkflow);
+        String jsongooseinfo = this.goose.SubmitWorkflow(jsonWorkflow);
+        if (jsongooseinfo != null)
+        {
+            System.out.println("Proxy got SubmitWorkflow result: " + jsongooseinfo);
+            Object[] arguments = new Object[1];
+            arguments[0] = jsongooseinfo;
+            browser.call("OnSubmitWorkflow", arguments);
+            System.out.println("Submit workfow returned: " + jsongooseinfo);
+        }
     }
 
     public String StartRecording()
