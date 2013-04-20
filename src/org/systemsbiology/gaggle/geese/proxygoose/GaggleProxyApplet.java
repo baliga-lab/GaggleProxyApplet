@@ -70,7 +70,7 @@ public class GaggleProxyApplet extends JApplet {
 	//       this thread gets the elevated security policy.  Java == stupid.
 	public void start(){
 		browser.call("java_socket_bridge_ready", null);
-        goose = new ProxyGoose();
+        goose = new ProxyGoose(browser);
 
         /*running = true;
 		while(running){
@@ -222,6 +222,25 @@ public class GaggleProxyApplet extends JApplet {
             arguments[0] = jsongooseinfo;
             browser.call("OnSubmitWorkflow", arguments);
             System.out.println("Submit workfow returned: " + jsongooseinfo);
+        }
+    }
+
+    public void SaveStateDelegate(String userid, String name, String desc)
+    {
+        System.out.println("Save state for  " + userid);
+
+        if (userid != null)
+        {
+            this.goose.saveStateDelegate(userid, name, desc);
+        }
+    }
+
+    public void LoadStateDelegate(String stateid)
+    {
+        System.out.println("Load state for " + stateid);
+        if (stateid != null)
+        {
+            this.goose.loadStateDelegate(stateid);
         }
     }
 

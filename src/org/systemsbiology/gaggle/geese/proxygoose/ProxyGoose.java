@@ -13,17 +13,19 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 //import org.apache.commons.logging.Log;
+import net.sf.json.JSONObject;
+import netscape.javascript.JSObject;
 import org.systemsbiology.gaggle.core.*;
 import org.systemsbiology.gaggle.core.datatypes.*;
 import org.systemsbiology.gaggle.geese.common.GaggleConnectionListener;
 import org.systemsbiology.gaggle.geese.common.RmiGaggleConnector;
 import org.systemsbiology.gaggle.geese.common.GooseShutdownHook;
+
+import javax.print.attribute.standard.DateTimeAtCompleted;
 
 
 /**
@@ -54,11 +56,13 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     String workflowString;
     String jsongooseinfo;
     Goose3 self = null;
+    JSObject browser;
 
 
-    public ProxyGoose() {
+    public ProxyGoose(JSObject browser) {
         try
         {
+            this.browser = browser;
             connector.setAutoStartBoss(true);
             connector.addListener(this);
             new GooseShutdownHook(connector);
@@ -247,10 +251,100 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
 
     // Goose methods ---------------------------------------------------------
+    public GaggleGooseInfo getGooseInfo()
+    {
+        return null;
+    }
+
+
     public void handleWorkflowAction(WorkflowAction action)
     {
 
     }
+
+    public void saveState(String directory, String filePrefix) throws RemoteException
+    {
+
+    }
+
+    public void loadState(String location) throws RemoteException
+    {
+
+    }
+
+
+    public void saveStateDelegate(final String userid, final String name, final String desc)
+    {
+        System.out.println(userid);
+        // Testing purpose, remove later !!!
+        //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
+
+        connectToBoss();
+
+        if (boss != null)
+        {
+            try
+            {
+                AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                    @Override
+                    public Object run() {
+                        try
+                        {
+                            SimpleDateFormat df = new SimpleDateFormat("MMddyyyy-HHmmss");
+                            Date date = new Date();
+                            System.out.println("Save state " + userid + " " + df.format(date));
+                            boss.saveState(self, userid, name, desc, df.format(date));
+                        }
+                        catch (Exception ex)
+                        {
+                            boss = null;
+                            System.out.println("Failed to save state " + ex.getMessage());
+                        }
+                        return null;
+                    }
+                });
+            }
+            catch (Exception e1)
+            {
+                System.out.println(e1.getMessage());
+            }
+        }
+    }
+
+    public void loadStateDelegate(final String stateid)
+    {
+        System.out.println(stateid);
+        connectToBoss();
+
+        if (boss != null)
+        {
+            try
+            {
+                AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                    @Override
+                    public Object run() {
+                        try
+                        {
+                            System.out.println("Loading state ...");
+                            boss.loadState(stateid);
+                        }
+                        catch (Exception ex)
+                        {
+                            boss = null;
+                            System.out.println("Failed to save state " + ex.getMessage());
+                        }
+                        return null;
+                    }
+                });
+            }
+            catch (Exception e1)
+            {
+                System.out.println(e1.getMessage());
+            }
+        }
+    }
+
+
 
     /***
      * Handles the status info of the workflow (e.g. currently active node, error info etc)
@@ -259,7 +353,32 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
      */
     public void handleWorkflowInformation(String type, String info)
     {
-
+         if (type.equalsIgnoreCase("message"))
+         {
+             if (info.equalsIgnoreCase("Workflow Finished"))
+             {
+                 System.out.println("Proxy got workflow finish notification");
+                 browser.call("OnWorkflowFinished", null);
+                 System.out.println("Submit workfow returned: " + jsongooseinfo);
+             }
+         }
+         else if (type.equalsIgnoreCase("Recording")) {
+             System.out.println("Received broadcast recording: " + info);
+             //Object[] params = info.split(";");
+             browser.call("UpdateRecordingInfo", new Object[]{info});
+         }
+         else if (type.equalsIgnoreCase("SaveStateResponse"))
+         {
+             System.out.println("Received save state response: " + info);
+             JSONObject jsonObject = JSONObject.fromObject(info);
+             JSONObject stateObj = jsonObject.getJSONObject("state");
+             String id = stateObj.getString("id");
+             String name = stateObj.getString("name");
+             String desc = stateObj.getString("desc");
+             System.out.println("ID " + id + " name " + name + " desc " + desc);
+             //Object[] params = info.split(";");
+             browser.call("OnSaveState", new String[]{(id + ";;" + name + ";;" + desc)});
+         }
     }
 
     public void handleTable(String source, Table table)
@@ -295,7 +414,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                             catch (Exception ex)
                             {
                                 boss = null;
-                                System.out.println(ex.getMessage());
+                                System.out.println("Failed to submit workflow " + ex.getMessage());
                             }
                             return null;
                         }
@@ -461,7 +580,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     try
                     {
                         connectToGaggle();
-                        boss = (Boss3)Naming.lookup(uri);
+                        boss = (org.systemsbiology.gaggle.core.Boss3)connector.getBoss();
                     }
                     catch (Exception e)
                     {
