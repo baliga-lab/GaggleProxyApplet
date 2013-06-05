@@ -353,7 +353,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
      */
     public void handleWorkflowInformation(String type, String info)
     {
-         if (type.equalsIgnoreCase("message"))
+         if (type.equalsIgnoreCase("Information"))
          {
              if (info.equalsIgnoreCase("Workflow Finished"))
              {
@@ -361,6 +361,16 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                  browser.call("OnWorkflowFinished", null);
                  System.out.println("Submit workfow returned: " + jsongooseinfo);
              }
+             else
+                 browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "info"});
+         }
+         else if (type.equalsIgnoreCase("Error"))
+         {
+             browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "error"});
+         }
+         else if (type.equalsIgnoreCase("Warning"))
+         {
+             browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "warning"});
          }
          else if (type.equalsIgnoreCase("Recording")) {
              System.out.println("Received broadcast recording: " + info);
@@ -581,6 +591,15 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     {
                         connectToGaggle();
                         boss = (org.systemsbiology.gaggle.core.Boss3)connector.getBoss();
+                        /*int i = 0;
+                        do{
+                            boss = (org.systemsbiology.gaggle.core.Boss3)connector.getBoss();
+                            if (boss != null)
+                                return null;
+                            Thread.sleep(5000);
+                            i++;
+                        }
+                        while (boss == null && i < 3);*/
                     }
                     catch (Exception e)
                     {

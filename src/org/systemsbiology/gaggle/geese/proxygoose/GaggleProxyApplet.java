@@ -208,6 +208,21 @@ public class GaggleProxyApplet extends JApplet {
         return false;
     }
 
+
+    /*public String[] getGeeseList()
+    {
+        try
+        {
+            goose.connectToGaggle();
+            return goose.activeGooseNames;
+        }
+        catch (Exception e)
+        {
+            System.out.println("Failed to get geese list: " + e.getMessage());
+        }
+        return null;
+    } */
+
     public void SubmitWorkflow(String jsonWorkflow)
     {
         System.out.println("Workflow received: " + jsonWorkflow);
