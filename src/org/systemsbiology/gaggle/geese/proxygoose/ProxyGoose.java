@@ -40,7 +40,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     final static String defaultGooseName = "ProxyAppletGoose";
     String gooseName = defaultGooseName;
     private String uri = "rmi://localhost/gaggle";
-    Boss3 boss;
+    Boss3 boss = null;
     UUID recordSessionID = null;
     String jsonRecordedWorkflow = null;
 
@@ -63,10 +63,12 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
         try
         {
             this.browser = browser;
-            connector.setAutoStartBoss(true);
+            connector.setAutoStartBoss(false);
             connector.addListener(this);
             new GooseShutdownHook(connector);
             self = this;
+
+            //connectToBoss();
         }
         catch (Exception e)
         {
@@ -584,6 +586,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     {
         if (boss == null)
         {
+            System.out.println("Connecting to boss...");
             AccessController.doPrivileged(new PrivilegedAction<Object>() {
                 @Override
                 public Object run() {
@@ -739,6 +742,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                 this.boss = null;
 		}
 		else {
+            System.out.println("Disconnected from boss");
 			this.boss = null;
 		}
         if (this.boss != null)
