@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="gaggle-connector">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/gaggle-connector.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
