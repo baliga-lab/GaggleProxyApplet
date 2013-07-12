@@ -63,7 +63,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
         try
         {
             this.browser = browser;
-            connector.setAutoStartBoss(false);
+            //connector.setAutoStartBoss(false);
             connector.addListener(this);
             new GooseShutdownHook(connector);
             self = this;
@@ -355,6 +355,9 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
      */
     public void handleWorkflowInformation(String type, String info)
     {
+         if (browser == null)
+             return;
+
          if (type.equalsIgnoreCase("Information"))
          {
              if (info.equalsIgnoreCase("Workflow Finished"))
@@ -427,6 +430,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                             {
                                 boss = null;
                                 System.out.println("Failed to submit workflow " + ex.getMessage());
+                                ex.printStackTrace();
                             }
                             return null;
                         }
@@ -441,8 +445,8 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                 else
                     break;
             }
-            else
-                break;
+            //else
+            //    break;
             retries++;
         }
         System.out.println("Returning " + jsongooseinfo);
@@ -592,8 +596,27 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                 public Object run() {
                     try
                     {
+                        int check = 0;
                         connectToGaggle();
-                        boss = (org.systemsbiology.gaggle.core.Boss3)connector.getBoss();
+                        while (boss == null && check < 9)
+                        {
+                            Thread.sleep(5000);
+                            try {
+                                boss = (org.systemsbiology.gaggle.core.Boss3)connector.getBoss();
+                            }
+                            catch (Exception eb)
+                            {
+                                System.out.println("Failed to get boss " + eb.getMessage());
+                                boss = null;
+                            }
+                            System.out.println("Checking boss " + boss);
+                            check++;
+                        }
+                        System.out.println("Boss " + boss);
+                        if (boss != null)
+                            // wait until boss fully started...
+                            Thread.sleep(10000);
+
                         /*int i = 0;
                         do{
                             boss = (org.systemsbiology.gaggle.core.Boss3)connector.getBoss();
@@ -607,6 +630,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     catch (Exception e)
                     {
                         System.out.println(e.getMessage());
+                        boss = null;
                     }
                     return null;
                 }

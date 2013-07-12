@@ -25,6 +25,8 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 import org.systemsbiology.gaggle.core.*;
@@ -52,7 +54,7 @@ public class GaggleProxyApplet extends JApplet {
 
     // Initialize
 	public void init(){
-		browser = JSObject.getWindow(this);
+        browser = JSObject.getWindow(this);
 	}
 
 	// Stop and destroy
@@ -69,7 +71,9 @@ public class GaggleProxyApplet extends JApplet {
 	// Note: This method loops over and over to handle requests becuase only
 	//       this thread gets the elevated security policy.  Java == stupid.
 	public void start(){
-		browser.call("java_socket_bridge_ready", null);
+        System.out.println("Starting Gaggle Proxy...");
+        if (browser != null)
+		    browser.call("java_socket_bridge_ready", null);
         goose = new ProxyGoose(browser);
 
         /*running = true;
