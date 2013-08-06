@@ -384,15 +384,28 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
          }
          else if (type.equalsIgnoreCase("SaveStateResponse"))
          {
-             System.out.println("Received save state response: " + info);
-             JSONObject jsonObject = JSONObject.fromObject(info);
-             JSONObject stateObj = jsonObject.getJSONObject("state");
-             String id = stateObj.getString("id");
-             String name = stateObj.getString("name");
-             String desc = stateObj.getString("desc");
-             System.out.println("ID " + id + " name " + name + " desc " + desc);
-             //Object[] params = info.split(";");
-             browser.call("OnSaveState", new String[]{(id + ";;" + name + ";;" + desc)});
+             try
+             {
+                 System.out.println("Received save state response: " + info);
+                 //JSONObject jsonObject = JSONObject.fromObject(info);
+                 //JSONObject stateObj = (JSONObject)jsonObject.get("state");
+                 //String id = stateObj.getString("id");
+                 //String name = stateObj.getString("name");
+                 //String desc = stateObj.getString("desc");
+                 //System.out.println("ID " + id + " name " + name + " desc " + desc);
+                 //Object[] params = info.split(";");
+                 browser.call("OnSaveState", new String[]{info}); // {(id + ";;" + name + ";;" + desc)});
+             }
+             catch (Exception e0)
+             {
+                 System.out.println("Failed to call back OnSaveState " + e0.getMessage());
+                 e0.printStackTrace();
+             }
+         }
+         else if (type.equalsIgnoreCase("WorkflowInformation"))
+         {
+             System.out.println("Passing workflow ID " + info + " to proxy applet");
+             browser.call("SetWorkflowID", new String[]{info});
          }
     }
 
@@ -407,6 +420,17 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
         // Testing purpose, remove later !!!
         //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
         this.workflowString = jsonWorkflow;
+
+        // If this is a reset command, and if boss is not started, we just return.
+        // There is no need to start the boss
+        boolean reset = false;
+        if (jsonWorkflow.contains("reset") && jsonWorkflow.contains("true"))
+        {
+            reset = true;
+            if (boss == null)
+                return "";
+        }
+
         int retries = 0;
         while (retries < 2)
         {
@@ -439,8 +463,9 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                 catch (Exception e1)
                 {
                     System.out.println(e1.getMessage());
+                    boss = null;
                 }
-                if (boss == null)
+                if (boss == null && !reset)
                     System.out.println("One more try...");
                 else
                     break;
