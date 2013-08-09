@@ -391,58 +391,66 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
         try
         {
-            service.invokeLater(new DOMAction()
+            service.invokeAndWait(new DOMAction()
             {
                 public Object run(DOMAccessor accessor)
                 {
-                    if (type.equalsIgnoreCase("Information"))
+                    try
                     {
-                        if (info.equalsIgnoreCase("Workflow Finished"))
+                        if (type.equalsIgnoreCase("Information"))
                         {
-                            System.out.println("Proxy got workflow finish notification");
-                            browser.call("OnWorkflowFinished", null);
-                            System.out.println("Submit workfow returned: " + jsongooseinfo);
+                            if (info.equalsIgnoreCase("Workflow Finished"))
+                            {
+                                System.out.println("Proxy got workflow finish notification");
+                                browser.call("OnWorkflowFinished", null);
+                                System.out.println("Submit workfow returned: " + jsongooseinfo);
+                            }
+                            else
+                                browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "info"});
                         }
-                        else
-                            browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "info"});
-                    }
-                    else if (type.equalsIgnoreCase("Error"))
-                    {
-                        browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "error"});
-                    }
-                    else if (type.equalsIgnoreCase("Warning"))
-                    {
-                        browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "warning"});
-                    }
-                    else if (type.equalsIgnoreCase("Recording")) {
-                        System.out.println("Received broadcast recording: " + info);
-                        //Object[] params = info.split(";");
-                        browser.call("UpdateRecordingInfo", new Object[]{info});
-                    }
-                    else if (type.equalsIgnoreCase("SaveStateResponse"))
-                    {
-                        try
+                        else if (type.equalsIgnoreCase("Error"))
                         {
-                            System.out.println("Received save state response: " + info);
-                            //JSONObject jsonObject = JSONObject.fromObject(info);
-                            //JSONObject stateObj = (JSONObject)jsonObject.get("state");
-                            //String id = stateObj.getString("id");
-                            //String name = stateObj.getString("name");
-                            //String desc = stateObj.getString("desc");
-                            //System.out.println("ID " + id + " name " + name + " desc " + desc);
+                            browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "error"});
+                        }
+                        else if (type.equalsIgnoreCase("Warning"))
+                        {
+                            browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "warning"});
+                        }
+                        else if (type.equalsIgnoreCase("Recording")) {
+                            System.out.println("Received broadcast recording: " + info);
                             //Object[] params = info.split(";");
-                            browser.call("OnSaveState", new String[]{info}); // {(id + ";;" + name + ";;" + desc)});
+                            browser.call("UpdateRecordingInfo", new Object[]{info});
                         }
-                        catch (Exception e0)
+                        else if (type.equalsIgnoreCase("SaveStateResponse"))
                         {
-                            System.out.println("Failed to call back OnSaveState " + e0.getMessage());
-                            e0.printStackTrace();
+                            try
+                            {
+                                System.out.println("Received save state response: " + info);
+                                //JSONObject jsonObject = JSONObject.fromObject(info);
+                                //JSONObject stateObj = (JSONObject)jsonObject.get("state");
+                                //String id = stateObj.getString("id");
+                                //String name = stateObj.getString("name");
+                                //String desc = stateObj.getString("desc");
+                                //System.out.println("ID " + id + " name " + name + " desc " + desc);
+                                //Object[] params = info.split(";");
+                                browser.call("OnSaveState", new String[]{info}); // {(id + ";;" + name + ";;" + desc)});
+                            }
+                            catch (Exception e0)
+                            {
+                                System.out.println("Failed to call back OnSaveState " + e0.getMessage());
+                                e0.printStackTrace();
+                            }
+                        }
+                        else if (type.equalsIgnoreCase("WorkflowInformation"))
+                        {
+                            System.out.println("Passing workflow ID " + info + " to proxy applet");
+                            browser.call("SetWorkflowID", new String[]{info});
                         }
                     }
-                    else if (type.equalsIgnoreCase("WorkflowInformation"))
+                    catch (Exception e2)
                     {
-                        System.out.println("Passing workflow ID " + info + " to proxy applet");
-                        browser.call("SetWorkflowID", new String[]{info});
+                        System.out.println("Failed to handle workflow information " + e2.getMessage());
+                        e2.printStackTrace();
                     }
                     return null;
                 }
@@ -531,7 +539,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
             {
                 try
                 {
-                    service.invokeLater(new DOMAction()
+                    service.invokeAndWait(new DOMAction()
                     {
                         public Object run(DOMAccessor accessor)
                         {
@@ -725,7 +733,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                         //System.out.println("Boss " + boss);
                         if (checkBoss())
                             // wait until boss fully started...
-                            Thread.sleep(7000);
+                            Thread.sleep(5000);
 
                         /*int i = 0;
                         do{
