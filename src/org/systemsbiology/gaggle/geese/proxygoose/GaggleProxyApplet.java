@@ -67,6 +67,8 @@ public class GaggleProxyApplet extends JApplet {
 		disconnect();
 	}
 
+    public boolean isRunning() { return running; }
+
 	// Main
 	// Note: This method loops over and over to handle requests becuase only
 	//       this thread gets the elevated security policy.  Java == stupid.
@@ -74,10 +76,10 @@ public class GaggleProxyApplet extends JApplet {
         System.out.println("Starting Gaggle Proxy...");
         if (browser != null)
 		    browser.call("java_socket_bridge_ready", null);
-        goose = new ProxyGoose(browser);
+        goose = new ProxyGoose(this, browser);
 
-        /*running = true;
-		while(running){
+        running = true;
+		/*while(running){
 			// Wait
 			try{
 				Thread.sleep(100);
@@ -230,18 +232,7 @@ public class GaggleProxyApplet extends JApplet {
     public void SubmitWorkflow(String jsonWorkflow)
     {
         System.out.println("Workflow received: " + jsonWorkflow);
-        //JSONReader jsonReader = new JSONReader();
-        //jsonReader.createFromJSONString(jsonWorkflow);
-
-        String jsongooseinfo = this.goose.SubmitWorkflow(jsonWorkflow);
-        if (jsongooseinfo != null)
-        {
-            System.out.println("Proxy got SubmitWorkflow result: " + jsongooseinfo);
-            Object[] arguments = new Object[1];
-            arguments[0] = jsongooseinfo;
-            browser.call("OnSubmitWorkflow", arguments);
-            System.out.println("Submit workfow returned: " + jsongooseinfo);
-        }
+        this.goose.SubmitWorkflow(jsonWorkflow);
     }
 
     public void SaveStateDelegate(String userid, String name, String desc)

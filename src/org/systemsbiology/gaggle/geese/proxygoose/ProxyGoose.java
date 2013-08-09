@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 //import org.apache.commons.logging.Log;
+import com.sun.java.browser.dom.*;
 import net.sf.json.JSONObject;
 import netscape.javascript.JSObject;
 import org.systemsbiology.gaggle.core.*;
@@ -58,15 +59,23 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     Goose3 self = null;
     JSObject browser;
 
+    DOMService service = null;
+    Object syncObj = new Object();
+    Object gooseNameObj = new Object();
 
-    public ProxyGoose(JSObject browser) {
+    GaggleProxyApplet applet = null;
+
+
+    public ProxyGoose(GaggleProxyApplet myApplet, JSObject browser) {
         try
         {
+            this.service = DOMService.getService(myApplet);
             this.browser = browser;
             //connector.setAutoStartBoss(false);
             connector.addListener(this);
             new GooseShutdownHook(connector);
             self = this;
+            this.applet = myApplet;
 
             //connectToBoss();
         }
@@ -77,6 +86,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
         System.out.println("created ProxyGoose instance");
     }
+
 
     public String getSpecies() {
         return species;
@@ -280,10 +290,9 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
         System.out.println(userid);
         // Testing purpose, remove later !!!
         //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
-
         connectToBoss();
 
-        if (boss != null)
+        if (checkBoss())
         {
             try
             {
@@ -295,11 +304,14 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                             SimpleDateFormat df = new SimpleDateFormat("MMddyyyy-HHmmss");
                             Date date = new Date();
                             System.out.println("Save state " + userid + " " + df.format(date));
-                            boss.saveState(self, userid, name, desc, df.format(date));
+                            synchronized (syncObj)
+                            {
+                                boss.saveState(self, userid, name, desc, df.format(date));
+                            }
                         }
                         catch (Exception ex)
                         {
-                            boss = null;
+                            setBoss(null);
                             System.out.println("Failed to save state " + ex.getMessage());
                         }
                         return null;
@@ -318,7 +330,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
         System.out.println(stateid);
         connectToBoss();
 
-        if (boss != null)
+        if (checkBoss())
         {
             try
             {
@@ -328,11 +340,14 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                         try
                         {
                             System.out.println("Loading state ...");
-                            boss.loadState(stateid);
+                            synchronized (syncObj)
+                            {
+                                boss.loadState(stateid);
+                            }
                         }
                         catch (Exception ex)
                         {
-                            boss = null;
+                            setBoss(null);
                             System.out.println("Failed to save state " + ex.getMessage());
                         }
                         return null;
@@ -346,67 +361,98 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
         }
     }
 
+    public void setBoss(Boss3 boss)
+    {
+        synchronized (syncObj)
+        {
+           this.boss = boss;
+        }
+    }
 
+    public boolean checkBoss()
+    {
+        boolean result = true;
+        synchronized (syncObj)
+        {
+            result = (boss != null) ? true : false;
+        }
+        return result;
+    }
 
     /***
      * Handles the status info of the workflow (e.g. currently active node, error info etc)
      * @param type
      * @param info
      */
-    public void handleWorkflowInformation(String type, String info)
+    public void handleWorkflowInformation(final String type, final String info)
     {
-         if (browser == null)
-             return;
+        if (browser == null || applet == null || !applet.isRunning())
+            return;
 
-         if (type.equalsIgnoreCase("Information"))
-         {
-             if (info.equalsIgnoreCase("Workflow Finished"))
-             {
-                 System.out.println("Proxy got workflow finish notification");
-                 browser.call("OnWorkflowFinished", null);
-                 System.out.println("Submit workfow returned: " + jsongooseinfo);
-             }
-             else
-                 browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "info"});
-         }
-         else if (type.equalsIgnoreCase("Error"))
-         {
-             browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "error"});
-         }
-         else if (type.equalsIgnoreCase("Warning"))
-         {
-             browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "warning"});
-         }
-         else if (type.equalsIgnoreCase("Recording")) {
-             System.out.println("Received broadcast recording: " + info);
-             //Object[] params = info.split(";");
-             browser.call("UpdateRecordingInfo", new Object[]{info});
-         }
-         else if (type.equalsIgnoreCase("SaveStateResponse"))
-         {
-             try
-             {
-                 System.out.println("Received save state response: " + info);
-                 //JSONObject jsonObject = JSONObject.fromObject(info);
-                 //JSONObject stateObj = (JSONObject)jsonObject.get("state");
-                 //String id = stateObj.getString("id");
-                 //String name = stateObj.getString("name");
-                 //String desc = stateObj.getString("desc");
-                 //System.out.println("ID " + id + " name " + name + " desc " + desc);
-                 //Object[] params = info.split(";");
-                 browser.call("OnSaveState", new String[]{info}); // {(id + ";;" + name + ";;" + desc)});
-             }
-             catch (Exception e0)
-             {
-                 System.out.println("Failed to call back OnSaveState " + e0.getMessage());
-                 e0.printStackTrace();
-             }
-         }
-         else if (type.equalsIgnoreCase("WorkflowInformation"))
-         {
-             System.out.println("Passing workflow ID " + info + " to proxy applet");
-             browser.call("SetWorkflowID", new String[]{info});
-         }
+        try
+        {
+            service.invokeLater(new DOMAction()
+            {
+                public Object run(DOMAccessor accessor)
+                {
+                    if (type.equalsIgnoreCase("Information"))
+                    {
+                        if (info.equalsIgnoreCase("Workflow Finished"))
+                        {
+                            System.out.println("Proxy got workflow finish notification");
+                            browser.call("OnWorkflowFinished", null);
+                            System.out.println("Submit workfow returned: " + jsongooseinfo);
+                        }
+                        else
+                            browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "info"});
+                    }
+                    else if (type.equalsIgnoreCase("Error"))
+                    {
+                        browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "error"});
+                    }
+                    else if (type.equalsIgnoreCase("Warning"))
+                    {
+                        browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "warning"});
+                    }
+                    else if (type.equalsIgnoreCase("Recording")) {
+                        System.out.println("Received broadcast recording: " + info);
+                        //Object[] params = info.split(";");
+                        browser.call("UpdateRecordingInfo", new Object[]{info});
+                    }
+                    else if (type.equalsIgnoreCase("SaveStateResponse"))
+                    {
+                        try
+                        {
+                            System.out.println("Received save state response: " + info);
+                            //JSONObject jsonObject = JSONObject.fromObject(info);
+                            //JSONObject stateObj = (JSONObject)jsonObject.get("state");
+                            //String id = stateObj.getString("id");
+                            //String name = stateObj.getString("name");
+                            //String desc = stateObj.getString("desc");
+                            //System.out.println("ID " + id + " name " + name + " desc " + desc);
+                            //Object[] params = info.split(";");
+                            browser.call("OnSaveState", new String[]{info}); // {(id + ";;" + name + ";;" + desc)});
+                        }
+                        catch (Exception e0)
+                        {
+                            System.out.println("Failed to call back OnSaveState " + e0.getMessage());
+                            e0.printStackTrace();
+                        }
+                    }
+                    else if (type.equalsIgnoreCase("WorkflowInformation"))
+                    {
+                        System.out.println("Passing workflow ID " + info + " to proxy applet");
+                        browser.call("SetWorkflowID", new String[]{info});
+                    }
+                    return null;
+                }
+            });
+        }
+        catch (Exception e1)
+        {
+            System.out.println("Failed to execute javascript function " + e1.getMessage());
+            e1.printStackTrace();
+        }
     }
 
     public void handleTable(String source, Table table)
@@ -427,7 +473,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
         if (jsonWorkflow.contains("reset") && jsonWorkflow.contains("true"))
         {
             reset = true;
-            if (boss == null)
+            if (!checkBoss())
                 return "";
         }
 
@@ -436,7 +482,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
         {
             connectToBoss();
 
-            if (boss != null)
+            if (checkBoss())
             {
                 try
                 {
@@ -446,13 +492,16 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                             try
                             {
                                 System.out.println("Submitting workflow...");
-                                String json = boss.submitWorkflow(self, workflowString);
-                                System.out.println("Submit Workflow returned " + json);
-                                jsongooseinfo = new String(json);
+                                synchronized (syncObj)
+                                {
+                                    String json = boss.submitWorkflow(self, workflowString);
+                                    System.out.println("Submit Workflow returned " + json);
+                                    jsongooseinfo = new String(json);
+                                }
                             }
                             catch (Exception ex)
                             {
-                                boss = null;
+                                setBoss(null);
                                 System.out.println("Failed to submit workflow " + ex.getMessage());
                                 ex.printStackTrace();
                             }
@@ -463,9 +512,9 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                 catch (Exception e1)
                 {
                     System.out.println(e1.getMessage());
-                    boss = null;
+                    setBoss(null);
                 }
-                if (boss == null && !reset)
+                if (!checkBoss() && !reset)
                     System.out.println("One more try...");
                 else
                     break;
@@ -474,7 +523,34 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
             //    break;
             retries++;
         }
+
         System.out.println("Returning " + jsongooseinfo);
+        if (jsongooseinfo != null && jsongooseinfo.length() > 0)
+        {
+            if (browser != null)
+            {
+                try
+                {
+                    service.invokeLater(new DOMAction()
+                    {
+                        public Object run(DOMAccessor accessor)
+                        {
+                            System.out.println("Proxy got SubmitWorkflow result: " + jsongooseinfo);
+                            Object[] arguments = new Object[1];
+                            arguments[0] = jsongooseinfo;
+                            browser.call("OnSubmitWorkflow", arguments);
+                            System.out.println("Submit workfow returned: " + jsongooseinfo);
+                            return null;
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    System.out.println("Failed execute OnSubmitWorkflow " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
         return jsongooseinfo;
     }
 
@@ -492,7 +568,10 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     public Object run() {
                         try
                         {
-                            recordSessionID = boss.startRecordingWorkflow();
+                            synchronized (syncObj)
+                            {
+                                recordSessionID = boss.startRecordingWorkflow();
+                            }
                         }
                         catch (Exception e)
                         {
@@ -515,7 +594,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     {
         System.out.println("stopRecording");
         connectToBoss();
-        if (boss != null)
+        if (checkBoss())
         {
             try
             {
@@ -549,7 +628,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     {
         System.out.println("pauseRecording");
         connectToBoss();
-        if (boss != null)
+        if (checkBoss())
         {
             try
             {
@@ -559,7 +638,10 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     public Object run() {
                         try
                         {
-                            jsonRecordedWorkflow = boss.pauseRecordingWorkflow(rid);
+                            synchronized (syncObj)
+                            {
+                                jsonRecordedWorkflow = boss.pauseRecordingWorkflow(rid);
+                            }
                         }
                         catch (Exception e)
                         {
@@ -583,7 +665,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     {
         System.out.println("resumeRecording");
         connectToBoss();
-        if (boss != null)
+        if (checkBoss())
         {
             try
             {
@@ -593,7 +675,10 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     public Object run() {
                         try
                         {
-                            boss.resumeRecordingWorkflow(rid);
+                            synchronized (syncObj)
+                            {
+                                boss.resumeRecordingWorkflow(rid);
+                            }
                         }
                         catch (Exception e)
                         {
@@ -613,7 +698,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     private void connectToBoss()
     {
-        if (boss == null)
+        if (!checkBoss())
         {
             System.out.println("Connecting to boss...");
             AccessController.doPrivileged(new PrivilegedAction<Object>() {
@@ -623,24 +708,24 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     {
                         int check = 0;
                         connectToGaggle();
-                        while (boss == null && check < 9)
+                        while (!checkBoss() && check < 9)
                         {
                             Thread.sleep(5000);
                             try {
-                                boss = (org.systemsbiology.gaggle.core.Boss3)connector.getBoss();
+                                setBoss((org.systemsbiology.gaggle.core.Boss3)connector.getBoss());
                             }
                             catch (Exception eb)
                             {
                                 System.out.println("Failed to get boss " + eb.getMessage());
-                                boss = null;
+                                setBoss(null);
                             }
-                            System.out.println("Checking boss " + boss);
+                            //System.out.println("Checking boss " + boss);
                             check++;
                         }
-                        System.out.println("Boss " + boss);
-                        if (boss != null)
+                        //System.out.println("Boss " + boss);
+                        if (checkBoss())
                             // wait until boss fully started...
-                            Thread.sleep(10000);
+                            Thread.sleep(7000);
 
                         /*int i = 0;
                         do{
@@ -655,7 +740,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     catch (Exception e)
                     {
                         System.out.println(e.getMessage());
-                        boss = null;
+                        setBoss(null);
                     }
                     return null;
                 }
@@ -731,13 +816,19 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     }
 
     public String getName() {
-        return gooseName;
+        //synchronized (gooseNameObj)
+        {
+            return gooseName;
+        }
     }
 
     public void setName(String gooseName) {
         // The name will be set to a unique name after the goose is registered with the boss
-        this.gooseName = gooseName;
-        System.out.println("Set GaggleProxy Applet name to: " + this.gooseName);
+        //synchronized (gooseNameObj)
+        {
+            this.gooseName = gooseName;
+            System.out.println("Set GaggleProxy Applet name to: " + this.gooseName);
+        }
     }
 
 
@@ -784,20 +875,22 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     //implements GaggleConnectionListener
 	public void setConnected(boolean connected, Boss boss) {
-		if (connected) {
+        if (connected) {
             if (boss.getClass().isInstance(Boss3.class))  // if the boss is an earlier version, we ignore it.
-			    this.boss = (Boss3)boss;
+                setBoss((Boss3)boss);
             else
-                this.boss = null;
-		}
-		else {
+                setBoss(null);
+        }
+        else {
             System.out.println("Disconnected from boss");
-			this.boss = null;
-		}
-        if (this.boss != null)
+            // here we need to call setBoss to synchronize the setting
+            setBoss(null);
+        }
+
+        if (checkBoss())
         {
-		    System.out.println("set connected: " + connected);
-		    System.out.println("isConnected: " + connector.isConnected());
+            System.out.println("set connected: " + connected);
+            System.out.println("isConnected: " + connector.isConnected());
         }
 	}
     
