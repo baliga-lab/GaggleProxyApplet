@@ -57,16 +57,18 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     String workflowString;
     String jsongooseinfo;
     Goose3 self = null;
+    BossCallbackGoose callbackGoose = null;
     JSObject browser;
 
     DOMService service = null;
     Object syncObj = new Object();
     Object gooseNameObj = new Object();
+    Object workflowSyncObj = null;
 
     GaggleProxyApplet applet = null;
 
 
-    public ProxyGoose(GaggleProxyApplet myApplet, JSObject browser) {
+    public ProxyGoose(GaggleProxyApplet myApplet, BossCallbackGoose callbackGoose, JSObject browser, Object workflowSyncObj) {
         try
         {
             this.service = DOMService.getService(myApplet);
@@ -76,6 +78,8 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
             new GooseShutdownHook(connector);
             self = this;
             this.applet = myApplet;
+            this.callbackGoose = callbackGoose;
+            this.workflowSyncObj = workflowSyncObj;
 
             //connectToBoss();
         }
@@ -86,7 +90,6 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
         System.out.println("created ProxyGoose instance");
     }
-
 
     public String getSpecies() {
         return species;
@@ -287,76 +290,82 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     public void saveStateDelegate(final String userid, final String name, final String desc)
     {
-        System.out.println(userid);
-        // Testing purpose, remove later !!!
-        //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
-        connectToBoss();
-
-        if (checkBoss())
+        synchronized (workflowSyncObj)
         {
-            try
+            System.out.println(userid);
+            // Testing purpose, remove later !!!
+            //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
+            connectToBoss();
+
+            if (checkBoss())
             {
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    @Override
-                    public Object run() {
-                        try
-                        {
-                            SimpleDateFormat df = new SimpleDateFormat("MMddyyyy-HHmmss");
-                            Date date = new Date();
-                            System.out.println("Save state " + userid + " " + df.format(date));
-                            synchronized (syncObj)
+                try
+                {
+                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        @Override
+                        public Object run() {
+                            try
                             {
-                                boss.saveState(self, userid, name, desc, df.format(date));
+                                SimpleDateFormat df = new SimpleDateFormat("MMddyyyy-HHmmss");
+                                Date date = new Date();
+                                System.out.println("Save state " + userid + " " + df.format(date));
+                                synchronized (syncObj)
+                                {
+                                    boss.saveState(callbackGoose, userid, name, desc, df.format(date));
+                                }
                             }
+                            catch (Exception ex)
+                            {
+                                setBoss(null);
+                                System.out.println("Failed to save state " + ex.getMessage());
+                            }
+                            return null;
                         }
-                        catch (Exception ex)
-                        {
-                            setBoss(null);
-                            System.out.println("Failed to save state " + ex.getMessage());
-                        }
-                        return null;
-                    }
-                });
-            }
-            catch (Exception e1)
-            {
-                System.out.println(e1.getMessage());
+                    });
+                }
+                catch (Exception e1)
+                {
+                    System.out.println(e1.getMessage());
+                }
             }
         }
     }
 
     public void loadStateDelegate(final String stateid)
     {
-        System.out.println(stateid);
-        connectToBoss();
-
-        if (checkBoss())
+        synchronized (workflowSyncObj)
         {
-            try
+            System.out.println(stateid);
+            connectToBoss();
+
+            if (checkBoss())
             {
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    @Override
-                    public Object run() {
-                        try
-                        {
-                            System.out.println("Loading state ...");
-                            synchronized (syncObj)
+                try
+                {
+                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        @Override
+                        public Object run() {
+                            try
                             {
-                                boss.loadState(stateid);
+                                System.out.println("Loading state ...");
+                                synchronized (syncObj)
+                                {
+                                    boss.loadState(stateid);
+                                }
                             }
+                            catch (Exception ex)
+                            {
+                                setBoss(null);
+                                System.out.println("Failed to save state " + ex.getMessage());
+                            }
+                            return null;
                         }
-                        catch (Exception ex)
-                        {
-                            setBoss(null);
-                            System.out.println("Failed to save state " + ex.getMessage());
-                        }
-                        return null;
-                    }
-                });
-            }
-            catch (Exception e1)
-            {
-                System.out.println(e1.getMessage());
+                    });
+                }
+                catch (Exception e1)
+                {
+                    System.out.println(e1.getMessage());
+                }
             }
         }
     }
@@ -386,81 +395,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
      */
     public void handleWorkflowInformation(final String type, final String info)
     {
-        if (browser == null || applet == null || !applet.isRunning())
-            return;
 
-        try
-        {
-            service.invokeAndWait(new DOMAction()
-            {
-                public Object run(DOMAccessor accessor)
-                {
-                    try
-                    {
-                        if (type.equalsIgnoreCase("Information"))
-                        {
-                            if (info.equalsIgnoreCase("Workflow Finished"))
-                            {
-                                System.out.println("Proxy got workflow finish notification");
-                                browser.call("OnWorkflowFinished", null);
-                                System.out.println("Submit workfow returned: " + jsongooseinfo);
-                            }
-                            else
-                                browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "info"});
-                        }
-                        else if (type.equalsIgnoreCase("Error"))
-                        {
-                            browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "error"});
-                        }
-                        else if (type.equalsIgnoreCase("Warning"))
-                        {
-                            browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "warning"});
-                        }
-                        else if (type.equalsIgnoreCase("Recording")) {
-                            System.out.println("Received broadcast recording: " + info);
-                            //Object[] params = info.split(";");
-                            browser.call("UpdateRecordingInfo", new Object[]{info});
-                        }
-                        else if (type.equalsIgnoreCase("SaveStateResponse"))
-                        {
-                            try
-                            {
-                                System.out.println("Received save state response: " + info);
-                                //JSONObject jsonObject = JSONObject.fromObject(info);
-                                //JSONObject stateObj = (JSONObject)jsonObject.get("state");
-                                //String id = stateObj.getString("id");
-                                //String name = stateObj.getString("name");
-                                //String desc = stateObj.getString("desc");
-                                //System.out.println("ID " + id + " name " + name + " desc " + desc);
-                                //Object[] params = info.split(";");
-                                browser.call("OnSaveState", new String[]{info}); // {(id + ";;" + name + ";;" + desc)});
-                            }
-                            catch (Exception e0)
-                            {
-                                System.out.println("Failed to call back OnSaveState " + e0.getMessage());
-                                e0.printStackTrace();
-                            }
-                        }
-                        else if (type.equalsIgnoreCase("WorkflowInformation"))
-                        {
-                            System.out.println("Passing workflow ID " + info + " to proxy applet");
-                            browser.call("SetWorkflowID", new String[]{info});
-                        }
-                    }
-                    catch (Exception e2)
-                    {
-                        System.out.println("Failed to handle workflow information " + e2.getMessage());
-                        e2.printStackTrace();
-                    }
-                    return null;
-                }
-            });
-        }
-        catch (Exception e1)
-        {
-            System.out.println("Failed to execute javascript function " + e1.getMessage());
-            e1.printStackTrace();
-        }
     }
 
     public void handleTable(String source, Table table)
@@ -470,92 +405,95 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     public String SubmitWorkflow(String jsonWorkflow)
     {
-        System.out.println(jsonWorkflow);
-        // Testing purpose, remove later !!!
-        //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
-        this.workflowString = jsonWorkflow;
+        synchronized (workflowSyncObj) {
+            System.out.println(jsonWorkflow);
+            // Testing purpose, remove later !!!
+            //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
+            this.workflowString = jsonWorkflow;
 
-        // If this is a reset command, and if boss is not started, we just return.
-        // There is no need to start the boss
-        boolean reset = false;
-        if (jsonWorkflow.contains("reset") && jsonWorkflow.contains("true"))
-        {
-            reset = true;
-            if (!checkBoss())
-                return "";
-        }
-
-        int retries = 0;
-        while (retries < 2)
-        {
-            connectToBoss();
-
-            if (checkBoss())
+            // If this is a reset command, and if boss is not started, we just return.
+            // There is no need to start the boss
+            boolean reset = false;
+            if (jsonWorkflow.contains("reset") && jsonWorkflow.contains("true"))
             {
-                try
-                {
-                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                        @Override
-                        public Object run() {
-                            try
-                            {
-                                System.out.println("Submitting workflow...");
-                                synchronized (syncObj)
-                                {
-                                    String json = boss.submitWorkflow(self, workflowString);
-                                    System.out.println("Submit Workflow returned " + json);
-                                    jsongooseinfo = new String(json);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                setBoss(null);
-                                System.out.println("Failed to submit workflow " + ex.getMessage());
-                                ex.printStackTrace();
-                            }
-                            return null;
-                        }
-                    });
-                }
-                catch (Exception e1)
-                {
-                    System.out.println(e1.getMessage());
-                    setBoss(null);
-                }
-                if (!checkBoss() && !reset)
-                    System.out.println("One more try...");
-                else
-                    break;
+                reset = true;
+                if (!checkBoss())
+                    return "";
             }
-            //else
-            //    break;
-            retries++;
-        }
 
-        System.out.println("Returning " + jsongooseinfo);
-        if (jsongooseinfo != null && jsongooseinfo.length() > 0)
-        {
-            if (browser != null)
+            int retries = 0;
+            while (retries < 2)
             {
-                try
+                connectToBoss();
+
+                if (checkBoss())
                 {
-                    service.invokeAndWait(new DOMAction()
+                    try
                     {
-                        public Object run(DOMAccessor accessor)
-                        {
-                            System.out.println("Proxy got SubmitWorkflow result: " + jsongooseinfo);
-                            Object[] arguments = new Object[1];
-                            arguments[0] = jsongooseinfo;
-                            browser.call("OnSubmitWorkflow", arguments);
-                            System.out.println("Submit workfow returned: " + jsongooseinfo);
-                            return null;
-                        }
-                    });
+                        callbackGoose.connectToBoss((retries > 0));
+                        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                            @Override
+                            public Object run() {
+                                try
+                                {
+                                    System.out.println("Submitting workflow...");
+                                    synchronized (syncObj)
+                                    {
+                                        String json = boss.submitWorkflow(callbackGoose, workflowString);
+                                        System.out.println("Submit Workflow returned " + json);
+                                        jsongooseinfo = new String(json);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    setBoss(null);
+                                    System.out.println("Failed to submit workflow " + ex.getMessage());
+                                    ex.printStackTrace();
+                                }
+                                return null;
+                            }
+                        });
+                    }
+                    catch (Exception e1)
+                    {
+                        System.out.println(e1.getMessage());
+                        setBoss(null);
+                    }
+                    if (!checkBoss() && !reset)
+                        System.out.println("One more try...");
+                    else
+                        break;
                 }
-                catch (Exception e)
+                //else
+                //    break;
+                retries++;
+            }
+
+            System.out.println("Returning " + jsongooseinfo);
+            if (jsongooseinfo != null && jsongooseinfo.length() > 0)
+            {
+                if (browser != null)
                 {
-                    System.out.println("Failed execute OnSubmitWorkflow " + e.getMessage());
-                    e.printStackTrace();
+                    try
+                    {
+                        service.invokeAndWait(new DOMAction()
+                        {
+                            public Object run(DOMAccessor accessor)
+                            {
+                                System.out.println("Proxy got SubmitWorkflow result: " + jsongooseinfo);
+                                Object[] arguments = new Object[1];
+                                arguments[0] = jsongooseinfo;
+                                browser.call("OnSubmitWorkflow", arguments);
+                                System.out.println("Submit workfow returned: " + jsongooseinfo);
+                                return null;
+                            }
+                        });
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println("Failed execute OnSubmitWorkflow " + e.getMessage());
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -564,35 +502,38 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     public UUID startRecording()
     {
-        System.out.println("startRecording");
-        connectToBoss();
-        if (boss != null)
+        synchronized (workflowSyncObj)
         {
-            try
+            System.out.println("startRecording");
+            connectToBoss();
+            if (boss != null)
             {
-                System.out.println("Calling boss to start recording...");
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    @Override
-                    public Object run() {
-                        try
-                        {
-                            synchronized (syncObj)
+                try
+                {
+                    System.out.println("Calling boss to start recording...");
+                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        @Override
+                        public Object run() {
+                            try
                             {
-                                recordSessionID = boss.startRecordingWorkflow();
+                                synchronized (syncObj)
+                                {
+                                    recordSessionID = boss.startRecordingWorkflow();
+                                }
                             }
+                            catch (Exception e)
+                            {
+                                System.out.println(e.getMessage());
+                            }
+                            return null;
                         }
-                        catch (Exception e)
-                        {
-                            System.out.println(e.getMessage());
-                        }
-                        return null;
-                    }
-                });
-                return recordSessionID;
-            }
-            catch (Exception e)
-            {
-                System.out.println(e.getMessage());
+                    });
+                    return recordSessionID;
+                }
+                catch (Exception e)
+                {
+                    System.out.println(e.getMessage());
+                }
             }
         }
         return null;
@@ -600,33 +541,36 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     public String stopRecording(final UUID rid)
     {
-        System.out.println("stopRecording");
-        connectToBoss();
-        if (checkBoss())
+        synchronized (workflowSyncObj)
         {
-            try
+            System.out.println("stopRecording");
+            connectToBoss();
+            if (checkBoss())
             {
-                System.out.println("Calling boss to stop recording...");
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    @Override
-                    public Object run() {
-                        try
-                        {
-                            jsonRecordedWorkflow = boss.terminateRecordingWorkflow(rid);
+                try
+                {
+                    System.out.println("Calling boss to stop recording...");
+                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        @Override
+                        public Object run() {
+                            try
+                            {
+                                jsonRecordedWorkflow = boss.terminateRecordingWorkflow(rid);
+                            }
+                            catch (Exception e)
+                            {
+                                System.out.println(e.getMessage());
+                            }
+                            return null;
                         }
-                        catch (Exception e)
-                        {
-                            System.out.println(e.getMessage());
-                        }
-                        return null;
-                    }
-                });
-                //System.out.println("Recorded workflow: " + jsonRecordedWorkflow);
-                return jsonRecordedWorkflow;
-            }
-            catch (Exception e)
-            {
-                System.out.println(e.getMessage());
+                    });
+                    //System.out.println("Recorded workflow: " + jsonRecordedWorkflow);
+                    return jsonRecordedWorkflow;
+                }
+                catch (Exception e)
+                {
+                    System.out.println(e.getMessage());
+                }
             }
         }
         return null;
@@ -634,36 +578,39 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     public String pauseRecording(final UUID rid)
     {
-        System.out.println("pauseRecording");
-        connectToBoss();
-        if (checkBoss())
+        synchronized (workflowSyncObj)
         {
-            try
+            System.out.println("pauseRecording");
+            connectToBoss();
+            if (checkBoss())
             {
-                System.out.println("Calling boss to pause recording...");
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    @Override
-                    public Object run() {
-                        try
-                        {
-                            synchronized (syncObj)
+                try
+                {
+                    System.out.println("Calling boss to pause recording...");
+                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        @Override
+                        public Object run() {
+                            try
                             {
-                                jsonRecordedWorkflow = boss.pauseRecordingWorkflow(rid);
+                                synchronized (syncObj)
+                                {
+                                    jsonRecordedWorkflow = boss.pauseRecordingWorkflow(rid);
+                                }
                             }
+                            catch (Exception e)
+                            {
+                                System.out.println(e.getMessage());
+                            }
+                            return null;
                         }
-                        catch (Exception e)
-                        {
-                            System.out.println(e.getMessage());
-                        }
-                        return null;
-                    }
-                });
-                //System.out.println("Recorded workflow: " + jsonRecordedWorkflow);
-                return jsonRecordedWorkflow;
-            }
-            catch (Exception e)
-            {
-                System.out.println(e.getMessage());
+                    });
+                    //System.out.println("Recorded workflow: " + jsonRecordedWorkflow);
+                    return jsonRecordedWorkflow;
+                }
+                catch (Exception e)
+                {
+                    System.out.println(e.getMessage());
+                }
             }
         }
         return null;
@@ -671,34 +618,37 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     public String resumeRecording(final UUID rid)
     {
-        System.out.println("resumeRecording");
-        connectToBoss();
-        if (checkBoss())
+        synchronized (workflowSyncObj)
         {
-            try
+            System.out.println("resumeRecording");
+            connectToBoss();
+            if (checkBoss())
             {
-                System.out.println("Calling boss to resume recording...");
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    @Override
-                    public Object run() {
-                        try
-                        {
-                            synchronized (syncObj)
+                try
+                {
+                    System.out.println("Calling boss to resume recording...");
+                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        @Override
+                        public Object run() {
+                            try
                             {
-                                boss.resumeRecordingWorkflow(rid);
+                                synchronized (syncObj)
+                                {
+                                    boss.resumeRecordingWorkflow(rid);
+                                }
                             }
+                            catch (Exception e)
+                            {
+                                System.out.println(e.getMessage());
+                            }
+                            return null;
                         }
-                        catch (Exception e)
-                        {
-                            System.out.println(e.getMessage());
-                        }
-                        return null;
-                    }
-                });
-            }
-            catch (Exception e)
-            {
-                System.out.println(e.getMessage());
+                    });
+                }
+                catch (Exception e)
+                {
+                    System.out.println(e.getMessage());
+                }
             }
         }
         return null;

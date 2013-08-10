@@ -47,9 +47,11 @@ public class GaggleProxyApplet extends JApplet {
 	String address = null;			// Where you will connect to
 	int port = -1;					// Port
 	boolean connectionDone = false;	// Thread synchronization
+    Object workflowSyncObj = new Object();
 
     Boss3 boss = null;
     ProxyGoose goose = null;
+    BossCallbackGoose callbackGoose = null;
     WorkflowAction action = null;
 
     // Initialize
@@ -69,6 +71,8 @@ public class GaggleProxyApplet extends JApplet {
 
     public boolean isRunning() { return running; }
 
+    public Goose3 getCallbackGoose() { return callbackGoose; }
+
 	// Main
 	// Note: This method loops over and over to handle requests becuase only
 	//       this thread gets the elevated security policy.  Java == stupid.
@@ -76,7 +80,9 @@ public class GaggleProxyApplet extends JApplet {
         System.out.println("Starting Gaggle Proxy...");
         if (browser != null)
 		    browser.call("java_socket_bridge_ready", null);
-        goose = new ProxyGoose(this, browser);
+        callbackGoose = new BossCallbackGoose(this, browser, workflowSyncObj);
+        goose = new ProxyGoose(this, callbackGoose, browser, workflowSyncObj);
+
 
         running = true;
 		/*while(running){
