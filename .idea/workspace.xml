@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0c90456c-a065-4024-8768-1e1f7f93eb36" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/BossCallbackGoose.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/BossCallbackGoose.java" afterPath="$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/BossCallbackGoose.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/GaggleProxyApplet.java" afterPath="$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/GaggleProxyApplet.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/ProxyGoose.java" afterPath="$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/ProxyGoose.java" />
     </list>
@@ -24,7 +24,7 @@
   </component>
   <component name="DebuggerManager">
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/ProxyGoose.java" line="71" class="org.systemsbiology.gaggle.geese.proxygoose.ProxyGoose" package="org.systemsbiology.gaggle.geese.proxygoose">
+      <breakpoint url="file://$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/ProxyGoose.java" line="72" class="org.systemsbiology.gaggle.geese.proxygoose.ProxyGoose" package="org.systemsbiology.gaggle.geese.proxygoose">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -78,19 +78,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="manage.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/manage.py">
+      <file leaf-file-name="workflow.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/static/javascripts/workflow.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="0" selection-start="254" selection-end="254" vertical-scroll-proportion="0.0">
+            <state line="2145" column="74" selection-start="82548" selection-end="82548" vertical-scroll-proportion="-8.032258">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="workflowsessionreport.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/templates/workflowsessionreport.html">
+      <file leaf-file-name="views.py" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="43" selection-start="549" selection-end="555" vertical-scroll-proportion="0.0">
+            <state line="988" column="20" selection-start="39023" selection-end="39023" vertical-scroll-proportion="0.12293853">
               <folding />
             </state>
           </provider>
@@ -117,45 +117,17 @@
       <file leaf-file-name="ProxyGoose.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/ProxyGoose.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="678" column="9" selection-start="22475" selection-end="22475" vertical-scroll-proportion="187.41936">
-              <folding>
-                <element signature="e#0#29464#0" expanded="true" />
-                <element signature="imports" expanded="true" />
-                <element signature="e#4723#4731#0" expanded="true" />
-                <element signature="e#9207#10229#0" expanded="true" />
-                <element signature="e#10206#10207#0" expanded="true" />
-                <element signature="e#10724#11525#0" expanded="true" />
-                <element signature="e#11502#11503#0" expanded="true" />
-                <element signature="e#13378#14530#0" expanded="true" />
-                <element signature="e#14503#14504#0" expanded="true" />
-                <element signature="e#15311#15960#0" expanded="true" />
-                <element signature="e#15933#15934#0" expanded="true" />
-                <element signature="e#16667#17344#0" expanded="true" />
-                <element signature="e#17321#17322#0" expanded="true" />
-                <element signature="e#17978#18540#0" expanded="true" />
-                <element signature="e#18517#18518#0" expanded="true" />
-                <element signature="e#19270#19955#0" expanded="true" />
-                <element signature="e#19932#19933#0" expanded="true" />
-                <element signature="e#20688#21351#0" expanded="true" />
-                <element signature="e#21328#21329#0" expanded="true" />
-                <element signature="e#21726#23533#0" expanded="true" />
-                <element signature="e#23518#23519#0" expanded="true" />
-              </folding>
+            <state line="144" column="43" selection-start="4575" selection-end="4575" vertical-scroll-proportion="-10.354838">
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BossCallbackGoose.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="BossCallbackGoose.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/BossCallbackGoose.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="183" column="9" selection-start="7258" selection-end="7258" vertical-scroll-proportion="0.65136296">
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#3314#7037#0" expanded="true" />
-                <element signature="e#7018#7019#0" expanded="true" />
-                <element signature="e#7576#8747#0" expanded="true" />
-                <element signature="e#8732#8733#0" expanded="true" />
-              </folding>
+            <state line="173" column="83" selection-start="7093" selection-end="7093" vertical-scroll-proportion="-8.451612">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -163,18 +135,34 @@
       <file leaf-file-name="GaggleProxyApplet.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/GaggleProxyApplet.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="82" column="40" selection-start="2742" selection-end="2742" vertical-scroll-proportion="-19.206896">
-              <folding>
-                <element signature="e#0#10154#0" expanded="true" />
-              </folding>
+            <state line="274" column="25" selection-start="7797" selection-end="7797" vertical-scroll-proportion="-10.172414">
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="workflow.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/static/javascripts/workflow.js">
+      <file leaf-file-name="GaggleData.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$PROJECT_DIR$/lib/gaggle-connector.jar!/org/systemsbiology/gaggle/core/datatypes/GaggleData.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1019" column="0" selection-start="38701" selection-end="38701" vertical-scroll-proportion="-14.451612">
+            <state line="5" column="17" selection-start="182" selection-end="182" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="WorkflowAction.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$PROJECT_DIR$/lib/gaggle-connector.jar!/org/systemsbiology/gaggle/core/datatypes/WorkflowAction.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="15" column="405" selection-start="1108" selection-end="1108" vertical-scroll-proportion="-8.6">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="workflow.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/templates/workflow.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="39" column="49" selection-start="2234" selection-end="2234" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -200,15 +188,15 @@
         <option value="$PROJECT_DIR$/../../network_portal/web_app/nwportal/settings/devwin.py" />
         <option value="$PROJECT_DIR$/../../network_portal/web_app/templates/base2.html" />
         <option value="$PROJECT_DIR$/../../network_portal/web_app/static/stylesheets/portal-style.css" />
-        <option value="$PROJECT_DIR$/../../network_portal/web_app/templates/workflow.html" />
         <option value="$PROJECT_DIR$/../../network_portal/web_app/static/javascripts/workflowreport.js" />
         <option value="$PROJECT_DIR$/../../network_portal/web_app/nwportal/urls.py" />
         <option value="$PROJECT_DIR$/../../network_portal/web_app/networks/models.py" />
-        <option value="$PROJECT_DIR$/../../network_portal/web_app/views.py" />
-        <option value="$PROJECT_DIR$/../../network_portal/web_app/static/javascripts/workflow.js" />
+        <option value="$PROJECT_DIR$/../../network_portal/web_app/templates/workflow.html" />
         <option value="$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/GaggleProxyApplet.java" />
         <option value="$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/ProxyGoose.java" />
         <option value="$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/BossCallbackGoose.java" />
+        <option value="$PROJECT_DIR$/../../network_portal/web_app/static/javascripts/workflow.js" />
+        <option value="$PROJECT_DIR$/../../network_portal/web_app/views.py" />
       </list>
     </option>
   </component>
@@ -253,6 +241,20 @@
             <PATH_ELEMENT USER_OBJECT="Root">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="GaggleProxyApplet" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="GaggleProxyApplet" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -327,20 +329,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="GaggleProxyApplet" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="GaggleProxyApplet" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -353,19 +341,19 @@
     <property name="MemberChooser.sorted" value="false" />
     <property name="options.lastSelected" value="project.propVCSSupport.Mappings" />
     <property name="recentsLimit" value="5" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../network_portal/web_app/static/javascripts" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../network_portal/web_app" />
     <property name="GenerateAntBuildDialog.inclineRuntiemClasspath" value="false" />
     <property name="GenerateAntBuildDialog.forceTargetJdk" value="true" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="GenerateAntBuildDialog.outputFileNameProperty" value="gaggleproxyapplet" />
+    <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="GenerateAntBuildDialog.enableUiFormCompile" value="true" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
-    <property name="GoToClass.includeLibraries" value="false" />
     <property name="GenerateAntBuildDialog.backupFiles" value="true" />
-    <property name="options.searchVisible" value="true" />
+    <property name="GoToClass.includeLibraries" value="false" />
     <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RunManager" selected="Remote.GaggleProxyApplet">
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
@@ -389,6 +377,24 @@
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="GaggleProxyApplet" />
+      <option name="MAIN_CLASS_NAME" value="org.systemsbiology.gaggle.geese.proxygoose.GaggleProxyApplet" />
+      <option name="HTML_FILE_NAME" value="http://localhost:8000/workflow.html" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="file://$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="C:/Program Files/Java/jre6" />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
@@ -417,24 +423,6 @@
       <envs />
       <properties />
       <listeners />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="GaggleProxyApplet" />
-      <option name="MAIN_CLASS_NAME" value="org.systemsbiology.gaggle.geese.proxygoose.GaggleProxyApplet" />
-      <option name="HTML_FILE_NAME" value="http://localhost:8000/workflow.html" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="file://$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="C:/Program Files/Java/jre6" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -545,15 +533,15 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.0664523" sideWeight="0.87026405" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3996063" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21997982" sideWeight="0.61093247" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25025228" sideWeight="0.6318328" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21997982" sideWeight="0.3853162" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25025228" sideWeight="0.36441585" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.12325831" sideWeight="0.45408678" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.0664523" sideWeight="0.7800202" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.050375134" sideWeight="0.6861756" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.1981982" sideWeight="0.7451182" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.12325831" sideWeight="0.31886983" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.050375134" sideWeight="0.05650858" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -621,31 +609,14 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/static/stylesheets/portal-style.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="2105" column="11" selection-start="42520" selection-end="42520" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/nwportal/settings/devwin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="13" selection-start="407" selection-end="420" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/lib/gaggle-connector.jar!/net/sf/json/JSONObject.class">
       <provider selected="true" editor-type-id="text-editor">
         <state line="5" column="19" selection-start="155" selection-end="155" vertical-scroll-proportion="0.1728" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/templates/workflow.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="435" column="29" selection-start="29410" selection-end="29422" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/nwportal/urls.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="71" selection-start="1498" selection-end="1509" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="23" column="71" selection-start="1498" selection-end="1509" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/templates/base2.html">
@@ -653,23 +624,19 @@
         <state line="91" column="117" selection-start="5189" selection-end="5202" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/manage.py">
+    <entry file="jar://$PROJECT_DIR$/lib/gaggle-connector.jar!/org/systemsbiology/gaggle/core/Goose3.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="0" selection-start="254" selection-end="254" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="739" column="55" selection-start="29826" selection-end="29826" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="5" column="17" selection-start="172" selection-end="172" vertical-scroll-proportion="-4.32" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/templates/workflowsessionreport.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="43" selection-start="549" selection-end="555" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="14" column="43" selection-start="549" selection-end="555" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/manage.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="8" column="0" selection-start="254" selection-end="254" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/static/javascripts/workflowreport.js">
@@ -682,68 +649,57 @@
         <state line="626" column="13" selection-start="23329" selection-end="23338" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/gaggle-connector.jar!/org/systemsbiology/gaggle/core/Goose3.class">
+    <entry file="jar://$PROJECT_DIR$/lib/gaggle-connector.jar!/org/systemsbiology/gaggle/core/datatypes/GaggleData.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="17" selection-start="172" selection-end="172" vertical-scroll-proportion="-4.32">
+        <state line="5" column="17" selection-start="182" selection-end="182" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/static/javascripts/workflow.js">
+    <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/templates/workflow.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1019" column="0" selection-start="38701" selection-end="38701" vertical-scroll-proportion="-14.451612">
+        <state line="39" column="49" selection-start="2234" selection-end="2234" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/gaggle-connector.jar!/org/systemsbiology/gaggle/core/datatypes/WorkflowAction.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="405" selection-start="1108" selection-end="1108" vertical-scroll-proportion="-8.6">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/GaggleProxyApplet.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="274" column="25" selection-start="7797" selection-end="7797" vertical-scroll-proportion="-10.172414">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/BossCallbackGoose.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="173" column="83" selection-start="7093" selection-end="7093" vertical-scroll-proportion="-8.451612">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/ProxyGoose.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="678" column="9" selection-start="22475" selection-end="22475" vertical-scroll-proportion="187.41936">
-          <folding>
-            <element signature="e#0#29464#0" expanded="true" />
-            <element signature="imports" expanded="true" />
-            <element signature="e#4723#4731#0" expanded="true" />
-            <element signature="e#9207#10229#0" expanded="true" />
-            <element signature="e#10206#10207#0" expanded="true" />
-            <element signature="e#10724#11525#0" expanded="true" />
-            <element signature="e#11502#11503#0" expanded="true" />
-            <element signature="e#13378#14530#0" expanded="true" />
-            <element signature="e#14503#14504#0" expanded="true" />
-            <element signature="e#15311#15960#0" expanded="true" />
-            <element signature="e#15933#15934#0" expanded="true" />
-            <element signature="e#16667#17344#0" expanded="true" />
-            <element signature="e#17321#17322#0" expanded="true" />
-            <element signature="e#17978#18540#0" expanded="true" />
-            <element signature="e#18517#18518#0" expanded="true" />
-            <element signature="e#19270#19955#0" expanded="true" />
-            <element signature="e#19932#19933#0" expanded="true" />
-            <element signature="e#20688#21351#0" expanded="true" />
-            <element signature="e#21328#21329#0" expanded="true" />
-            <element signature="e#21726#23533#0" expanded="true" />
-            <element signature="e#23518#23519#0" expanded="true" />
-          </folding>
+        <state line="144" column="43" selection-start="4575" selection-end="4575" vertical-scroll-proportion="-10.354838">
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/GaggleProxyApplet.java">
+    <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/static/javascripts/workflow.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="82" column="40" selection-start="2742" selection-end="2742" vertical-scroll-proportion="-19.206896">
-          <folding>
-            <element signature="e#0#10154#0" expanded="true" />
-          </folding>
+        <state line="2145" column="74" selection-start="82548" selection-end="82548" vertical-scroll-proportion="-8.032258">
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/systemsbiology/gaggle/geese/proxygoose/BossCallbackGoose.java">
+    <entry file="file://$PROJECT_DIR$/../../network_portal/web_app/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="183" column="9" selection-start="7258" selection-end="7258" vertical-scroll-proportion="0.65136296">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#3314#7037#0" expanded="true" />
-            <element signature="e#7018#7019#0" expanded="true" />
-            <element signature="e#7576#8747#0" expanded="true" />
-            <element signature="e#8732#8733#0" expanded="true" />
-          </folding>
+        <state line="988" column="20" selection-start="39023" selection-end="39023" vertical-scroll-proportion="0.12293853">
+          <folding />
         </state>
       </provider>
     </entry>

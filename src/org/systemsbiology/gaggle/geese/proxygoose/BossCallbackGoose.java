@@ -11,10 +11,11 @@ import org.systemsbiology.gaggle.core.datatypes.*;
 import org.systemsbiology.gaggle.geese.common.GaggleConnectionListener;
 import org.systemsbiology.gaggle.geese.common.RmiGaggleConnector;
 
+import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,7 +24,7 @@ import java.util.UUID;
  * Time: 7:04 PM
  * To change this template use File | Settings | File Templates.
  */
-public class BossCallbackGoose implements Goose3, GaggleConnectionListener {
+public class BossCallbackGoose extends UnicastRemoteObject implements Goose3, GaggleConnectionListener {
     private GaggleProxyApplet applet = null;
     private JSObject browser = null;
     final static String defaultGooseName = "ProxyAppletCallbackGoose";
@@ -41,7 +42,7 @@ public class BossCallbackGoose implements Goose3, GaggleConnectionListener {
     DOMService service = null;
     Object workflowSyncObj = null;
 
-    public BossCallbackGoose(GaggleProxyApplet myApplet, JSObject browser, Object workflowSyncObj)
+    public BossCallbackGoose(GaggleProxyApplet myApplet, JSObject browser, Object workflowSyncObj) throws RemoteException
     {
         this.applet = myApplet;
         this.browser = browser;
@@ -166,6 +167,11 @@ public class BossCallbackGoose implements Goose3, GaggleConnectionListener {
                                 System.out.println("Passing workflow ID " + info + " to proxy applet");
                                 browser.call("SetWorkflowID", new String[]{info});
                             }
+                            else if (type.equalsIgnoreCase("UploadResponse"))
+                            {
+                                System.out.println("Process upload response " + info);
+                                browser.call("ProcessBossUploadResult", new String[]{info});
+                            }
                         }
                         catch (Exception e2)
                         {
@@ -230,12 +236,12 @@ public class BossCallbackGoose implements Goose3, GaggleConnectionListener {
 
     public void connectToGaggle() throws Exception {
         try {
-            System.out.println("Callback goose connecting to gaggle...");
-            connector.connectToGaggle();
-        }
-        catch (Exception e) {
-            System.out.println("Exception trying to connect to Boss:");
-            e.printStackTrace();
+            boss = (Boss3) Naming.lookup(uri);
+        } catch (Exception ex) {
+            System.out.println("EXCEPT MESSAGE: " + ex.getMessage());
+            if (ex.getMessage().startsWith("Connection refused to host:")) {
+                System.out.println("Couldn't find a boss, trying to start one....");
+            }
         }
     }
 

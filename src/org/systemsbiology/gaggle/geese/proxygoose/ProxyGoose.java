@@ -9,7 +9,18 @@
 
 package org.systemsbiology.gaggle.geese.proxygoose;
 
-import java.rmi.Naming;
+import com.sun.java.browser.dom.DOMAccessor;
+import com.sun.java.browser.dom.DOMAction;
+import com.sun.java.browser.dom.DOMService;
+import netscape.javascript.JSObject;
+import org.systemsbiology.gaggle.core.Boss;
+import org.systemsbiology.gaggle.core.Boss3;
+import org.systemsbiology.gaggle.core.Goose3;
+import org.systemsbiology.gaggle.core.datatypes.*;
+import org.systemsbiology.gaggle.geese.common.GaggleConnectionListener;
+import org.systemsbiology.gaggle.geese.common.GooseShutdownHook;
+import org.systemsbiology.gaggle.geese.common.RmiGaggleConnector;
+
 import java.rmi.RemoteException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -17,16 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 //import org.apache.commons.logging.Log;
-import com.sun.java.browser.dom.*;
-import net.sf.json.JSONObject;
-import netscape.javascript.JSObject;
-import org.systemsbiology.gaggle.core.*;
-import org.systemsbiology.gaggle.core.datatypes.*;
-import org.systemsbiology.gaggle.geese.common.GaggleConnectionListener;
-import org.systemsbiology.gaggle.geese.common.RmiGaggleConnector;
-import org.systemsbiology.gaggle.geese.common.GooseShutdownHook;
-
-import javax.print.attribute.standard.DateTimeAtCompleted;
 
 
 /**
@@ -287,6 +288,47 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     }
 
+    public void uploadFiles(final WorkflowAction action)
+    {
+        synchronized (workflowSyncObj)
+        {
+            // Testing purpose, remove later !!!
+            //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
+            connectToBoss();
+
+            if (checkBoss())
+            {
+                try
+                {
+                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        @Override
+                        public Object run() {
+                            try
+                            {
+                                synchronized (syncObj)
+                                {
+                                    // We first call a dummy submitworkflow to pass the callbackGoose to Boss
+                                    boss.submitWorkflow(callbackGoose, null);
+                                    boss.handleWorkflowAction(action);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                setBoss(null);
+                                System.out.println("Failed to upload data file " + ex.getMessage());
+                                ex.printStackTrace();
+                            }
+                            return null;
+                        }
+                    });
+                }
+                catch (Exception e1)
+                {
+                    System.out.println(e1.getMessage());
+                }
+            }
+        }
+    }
 
     public void saveStateDelegate(final String userid, final String name, final String desc)
     {
@@ -405,95 +447,93 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
 
     public String SubmitWorkflow(String jsonWorkflow)
     {
-        synchronized (workflowSyncObj) {
-            System.out.println(jsonWorkflow);
-            // Testing purpose, remove later !!!
-            //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
-            this.workflowString = jsonWorkflow;
+        System.out.println(jsonWorkflow);
+        // Testing purpose, remove later !!!
+        //jsonWorkflow = "{type: 'workflow', gaggle-data: 'jsonWorkflow'}";
+        this.workflowString = jsonWorkflow;
 
-            // If this is a reset command, and if boss is not started, we just return.
-            // There is no need to start the boss
-            boolean reset = false;
-            if (jsonWorkflow.contains("reset") && jsonWorkflow.contains("true"))
+        // If this is a reset command, and if boss is not started, we just return.
+        // There is no need to start the boss
+        boolean reset = false;
+        if (jsonWorkflow.contains("reset") && jsonWorkflow.contains("true"))
+        {
+            reset = true;
+            if (!checkBoss())
+                return "";
+        }
+
+        int retries = 0;
+        while (retries < 2)
+        {
+            connectToBoss();
+
+            if (checkBoss())
             {
-                reset = true;
-                if (!checkBoss())
-                    return "";
-            }
-
-            int retries = 0;
-            while (retries < 2)
-            {
-                connectToBoss();
-
-                if (checkBoss())
+                try
                 {
-                    try
-                    {
-                        callbackGoose.connectToBoss((retries > 0));
-                        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                            @Override
-                            public Object run() {
-                                try
-                                {
-                                    System.out.println("Submitting workflow...");
-                                    synchronized (syncObj)
-                                    {
-                                        String json = boss.submitWorkflow(callbackGoose, workflowString);
-                                        System.out.println("Submit Workflow returned " + json);
-                                        jsongooseinfo = new String(json);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    setBoss(null);
-                                    System.out.println("Failed to submit workflow " + ex.getMessage());
-                                    ex.printStackTrace();
-                                }
-                                return null;
-                            }
-                        });
-                    }
-                    catch (Exception e1)
-                    {
-                        System.out.println(e1.getMessage());
-                        setBoss(null);
-                    }
-                    if (!checkBoss() && !reset)
-                        System.out.println("One more try...");
-                    else
-                        break;
-                }
-                //else
-                //    break;
-                retries++;
-            }
-
-            System.out.println("Returning " + jsongooseinfo);
-            if (jsongooseinfo != null && jsongooseinfo.length() > 0)
-            {
-                if (browser != null)
-                {
-                    try
-                    {
-                        service.invokeAndWait(new DOMAction()
-                        {
-                            public Object run(DOMAccessor accessor)
+                    callbackGoose.connectToBoss((retries > 0));
+                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        @Override
+                        public Object run() {
+                            try
                             {
-                                System.out.println("Proxy got SubmitWorkflow result: " + jsongooseinfo);
-                                Object[] arguments = new Object[1];
-                                arguments[0] = jsongooseinfo;
-                                browser.call("OnSubmitWorkflow", arguments);
-                                System.out.println("Submit workfow returned: " + jsongooseinfo);
-                                return null;
+                                System.out.println("Submitting workflow...");
+                                synchronized (syncObj)
+                                {
+                                    String json = boss.submitWorkflow(callbackGoose, workflowString);
+                                    System.out.println("Submit Workflow returned " + json);
+                                    jsongooseinfo = new String(json);
+                                }
                             }
-                        });
-                    }
-                    catch (Exception e)
+                            catch (Exception ex)
+                            {
+                                setBoss(null);
+                                System.out.println("Failed to submit workflow " + ex.getMessage());
+                                ex.printStackTrace();
+                            }
+                            return null;
+                        }
+                    });
+                }
+                catch (Exception e1)
+                {
+                    System.out.println(e1.getMessage());
+                    setBoss(null);
+                }
+                if (!checkBoss() && !reset)
+                    System.out.println("One more try...");
+                else
+                    break;
+            }
+            //else
+            //    break;
+            retries++;
+        }
+
+        System.out.println("Returning " + jsongooseinfo);
+        if (jsongooseinfo != null && jsongooseinfo.length() > 0)
+        {
+            if (browser != null)
+            {
+                try
+                {
+                    service.invokeAndWait(new DOMAction()
                     {
-                        System.out.println("Failed execute OnSubmitWorkflow " + e.getMessage());
-                        e.printStackTrace();
-                    }
+                        public Object run(DOMAccessor accessor)
+                        {
+                            System.out.println("Proxy got SubmitWorkflow result: " + jsongooseinfo);
+                            Object[] arguments = new Object[1];
+                            arguments[0] = jsongooseinfo;
+                            browser.call("OnSubmitWorkflow", arguments);
+                            System.out.println("Submit workfow returned: " + jsongooseinfo);
+                            return null;
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    System.out.println("Failed execute OnSubmitWorkflow " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }

@@ -14,27 +14,20 @@
 
 package org.systemsbiology.gaggle.geese.proxygoose;
 
-import java.applet.*;
-import javax.swing.*;
-import netscape.javascript.*;
-import javax.naming.*;
+import netscape.javascript.JSObject;
+import org.systemsbiology.gaggle.core.Boss3;
+import org.systemsbiology.gaggle.core.Goose3;
+import org.systemsbiology.gaggle.core.datatypes.GaggleData;
+import org.systemsbiology.gaggle.core.datatypes.WorkflowAction;
+import org.systemsbiology.gaggle.core.datatypes.WorkflowData;
 
-import java.net.*;
-import java.io.*;
-import java.rmi.Naming;
+import javax.swing.*;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.rmi.RemoteException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.UUID;
-
-import org.systemsbiology.gaggle.core.*;
-import org.systemsbiology.gaggle.core.datatypes.JSONReader;
-import org.systemsbiology.gaggle.core.datatypes.WorkflowAction;
-import org.systemsbiology.gaggle.core.datatypes.WorkflowComponent;
-
-import static netscape.javascript.JSObject.*;
 
 public class GaggleProxyApplet extends JApplet {
 
@@ -80,8 +73,16 @@ public class GaggleProxyApplet extends JApplet {
         System.out.println("Starting Gaggle Proxy...");
         if (browser != null)
 		    browser.call("java_socket_bridge_ready", null);
-        callbackGoose = new BossCallbackGoose(this, browser, workflowSyncObj);
-        goose = new ProxyGoose(this, callbackGoose, browser, workflowSyncObj);
+        try
+        {
+            callbackGoose = new BossCallbackGoose(this, browser, workflowSyncObj);
+            goose = new ProxyGoose(this, callbackGoose, browser, workflowSyncObj);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Failed to initialize proxy geese " + e.getMessage());
+            e.printStackTrace();
+        }
 
 
         running = true;
@@ -237,8 +238,11 @@ public class GaggleProxyApplet extends JApplet {
 
     public void SubmitWorkflow(String jsonWorkflow)
     {
-        System.out.println("Workflow received: " + jsonWorkflow);
-        this.goose.SubmitWorkflow(jsonWorkflow);
+        synchronized (workflowSyncObj)
+        {
+            System.out.println("Workflow received: " + jsonWorkflow);
+            this.goose.SubmitWorkflow(jsonWorkflow);
+        }
     }
 
     public void SaveStateDelegate(String userid, String name, String desc)
@@ -259,6 +263,18 @@ public class GaggleProxyApplet extends JApplet {
             this.goose.loadStateDelegate(stateid);
         }
     }
+
+    public void UploadFiles(String jsonUploadString)
+    {
+        System.out.println("Upload file to boss " + jsonUploadString);
+        WorkflowData data = new WorkflowData(jsonUploadString);
+        GaggleData[] items = new GaggleData[1];
+        items[0] = data;
+        WorkflowAction workflowAction = new WorkflowAction(null, null, null,
+                WorkflowAction.ActionType.Request, null, null, WorkflowAction.Options.FileUploadRequest.getValue(), items);
+        this.goose.uploadFiles(workflowAction);
+    }
+
 
     public String StartRecording()
     {
