@@ -355,6 +355,11 @@ public class GaggleProxyApplet extends JApplet {
         return false;
     }
 
+    public String[] getGeeseNames()
+    {
+        return this.goose.getGooseNames();
+    }
+
 	// Report an error
 	public void error(String message){
 		message = "Java Socket Bridge ERROR: " + message;
