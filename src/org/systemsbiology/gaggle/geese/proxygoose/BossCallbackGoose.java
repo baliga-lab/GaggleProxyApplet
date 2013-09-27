@@ -1,7 +1,5 @@
 package org.systemsbiology.gaggle.geese.proxygoose;
 
-import com.sun.java.browser.dom.DOMAccessor;
-import com.sun.java.browser.dom.DOMAction;
 import com.sun.java.browser.dom.DOMService;
 import netscape.javascript.JSObject;
 import org.systemsbiology.gaggle.core.Boss;
@@ -112,75 +110,60 @@ public class BossCallbackGoose extends UnicastRemoteObject implements Goose3, Ga
         {
             try
             {
-                service.invokeAndWait(new DOMAction()
+                if (type.equalsIgnoreCase("Information"))
                 {
-                    public Object run(DOMAccessor accessor)
+                    if (info.equalsIgnoreCase("Workflow Finished"))
                     {
-                        try
-                        {
-                            if (type.equalsIgnoreCase("Information"))
-                            {
-                                if (info.equalsIgnoreCase("Workflow Finished"))
-                                {
-                                    System.out.println("Proxy got workflow finish notification");
-                                    browser.call("OnWorkflowFinished", null);
-                                    System.out.println("workflow finished");
-                                }
-                                else
-                                    browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "info"});
-                            }
-                            else if (type.equalsIgnoreCase("Error"))
-                            {
-                                browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "error"});
-                            }
-                            else if (type.equalsIgnoreCase("Warning"))
-                            {
-                                browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "warning"});
-                            }
-                            else if (type.equalsIgnoreCase("Recording")) {
-                                System.out.println("Received broadcast recording: " + info);
-                                //Object[] params = info.split(";");
-                                browser.call("UpdateRecordingInfo", new Object[]{info});
-                            }
-                            else if (type.equalsIgnoreCase("SaveStateResponse"))
-                            {
-                                try
-                                {
-                                    System.out.println("Received save state response: " + info);
-                                    //JSONObject jsonObject = JSONObject.fromObject(info);
-                                    //JSONObject stateObj = (JSONObject)jsonObject.get("state");
-                                    //String id = stateObj.getString("id");
-                                    //String name = stateObj.getString("name");
-                                    //String desc = stateObj.getString("desc");
-                                    //System.out.println("ID " + id + " name " + name + " desc " + desc);
-                                    //Object[] params = info.split(";");
-                                    browser.call("OnSaveState", new String[]{info}); // {(id + ";;" + name + ";;" + desc)});
-                                }
-                                catch (Exception e0)
-                                {
-                                    System.out.println("Failed to call back OnSaveState " + e0.getMessage());
-                                    e0.printStackTrace();
-                                }
-                            }
-                            else if (type.equalsIgnoreCase("WorkflowInformation"))
-                            {
-                                System.out.println("Passing workflow ID " + info + " to proxy applet");
-                                browser.call("SetWorkflowID", new String[]{info});
-                            }
-                            else if (type.equalsIgnoreCase("UploadResponse"))
-                            {
-                                System.out.println("Process upload response " + info);
-                                browser.call("ProcessBossUploadResult", new String[]{info});
-                            }
-                        }
-                        catch (Exception e2)
-                        {
-                            System.out.println("Failed to handle workflow information " + e2.getMessage());
-                            e2.printStackTrace();
-                        }
-                        return null;
+                        System.out.println("Proxy got workflow finish notification");
+                        browser.call("OnWorkflowFinished", null);
+                        System.out.println("workflow finished");
                     }
-                });
+                    else
+                        browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "info"});
+                }
+                else if (type.equalsIgnoreCase("Error"))
+                {
+                    browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "error"});
+                }
+                else if (type.equalsIgnoreCase("Warning"))
+                {
+                    browser.call("DisplayInfo", new String[] {"#divLogInfo", info, "warning"});
+                }
+                else if (type.equalsIgnoreCase("Recording")) {
+                    System.out.println("Received broadcast recording: " + info);
+                    //Object[] params = info.split(";");
+                    browser.call("UpdateRecordingInfo", new Object[]{info});
+                }
+                else if (type.equalsIgnoreCase("SaveStateResponse"))
+                {
+                    try
+                    {
+                        System.out.println("Received save state response: " + info);
+                        //JSONObject jsonObject = JSONObject.fromObject(info);
+                        //JSONObject stateObj = (JSONObject)jsonObject.get("state");
+                        //String id = stateObj.getString("id");
+                        //String name = stateObj.getString("name");
+                        //String desc = stateObj.getString("desc");
+                        //System.out.println("ID " + id + " name " + name + " desc " + desc);
+                        //Object[] params = info.split(";");
+                        browser.call("OnSaveState", new String[]{info}); // {(id + ";;" + name + ";;" + desc)});
+                    }
+                    catch (Exception e0)
+                    {
+                        System.out.println("Failed to call back OnSaveState " + e0.getMessage());
+                        e0.printStackTrace();
+                    }
+                }
+                else if (type.equalsIgnoreCase("WorkflowInformation"))
+                {
+                    System.out.println("Passing workflow ID " + info + " to proxy applet");
+                    browser.call("SetWorkflowID", new String[]{info});
+                }
+                else if (type.equalsIgnoreCase("UploadResponse"))
+                {
+                    System.out.println("Process upload response " + info);
+                    browser.call("ProcessBossUploadResult", new String[]{info});
+                }
             }
             catch (Exception e1)
             {
