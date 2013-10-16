@@ -21,6 +21,7 @@ import org.systemsbiology.gaggle.geese.common.GaggleConnectionListener;
 import org.systemsbiology.gaggle.geese.common.GooseShutdownHook;
 import org.systemsbiology.gaggle.geese.common.RmiGaggleConnector;
 
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -37,7 +38,7 @@ import java.util.*;
  * @author cbare
  */
 public class ProxyGoose implements Goose3, GaggleConnectionListener {
-    String activeGooseNames[] = new String[0];
+    String activeGooseNames[] = null;
     RmiGaggleConnector connector = new RmiGaggleConnector(this);
     final static String defaultGooseName = "ProxyAppletGoose";
     String gooseName = defaultGooseName;
@@ -151,14 +152,53 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     }
 
     public String[] getGooseNames() {
-        List<String> results = new ArrayList<String>();
+
+        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            public Object run() {
+                if (checkBoss())
+                {
+                    try
+                    {
+                        if (boss != null)
+                            activeGooseNames = boss.getGooseNames();
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println("Failed to get goose names from boss " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+                else
+                {
+                    // Maybe we are not connected to the Boss yet. Let's give it a try
+                    try
+                    {
+                        String uri = "rmi://localhost/gaggle";
+                        boss = (Boss3)Naming.lookup(uri);
+                        if (boss != null)
+                        {
+                            activeGooseNames = boss.getGooseNames();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println("Failed to look up boss " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+                return null;
+            }
+        });
+        return activeGooseNames;
+
+        /*List<String> results = new ArrayList<String>();
             for (String name : activeGooseNames) {
-                if (!this.gooseName.equals(name)) {
+                if (!name.contains(defaultGooseName) && !name.contains("ProxyAppletCallbackGoose")) {
                     results.add(name);
                 }
             }
 
-        return results.toArray(new String[0]);
+        return results.toArray(new String[0]);  */
     }
 
     public void broadcastNameList(String targetGoose, String name, String species, String[] names) {
@@ -842,6 +882,8 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     }
 
     public void update(String[] gooseNames) throws RemoteException {
+        if (gooseNames != null && gooseNames.length > 0)
+            System.out.println("Updated goose names: " + gooseNames[0]);
         this.activeGooseNames = gooseNames;
         this.hasTargetUpdateSignal.increment();
     }
