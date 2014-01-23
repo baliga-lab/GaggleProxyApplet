@@ -156,8 +156,16 @@ public class BossCallbackGoose extends UnicastRemoteObject implements Goose3, Ga
                 }
                 else if (type.equalsIgnoreCase("WorkflowInformation"))
                 {
-                    System.out.println("Passing workflow ID " + info + " to proxy applet");
-                    browser.call("SetWorkflowID", new String[]{info});
+                    if (info.contains("WorkspaceData:::")) {
+                        System.out.println("Received page to be opened in workspace " + info);
+                        int loc = info.indexOf("WorkspaceData:::");
+                        String pageurl = info.substring(loc + "WorkspaceData:::".length());
+                        browser.call("WorkspaceDataReceived", new String[] {pageurl});
+                    }
+                    else {
+                        System.out.println("Passing workflow ID " + info + " to proxy applet");
+                        browser.call("SetWorkflowID", new String[]{info});
+                    }
                 }
                 else if (type.equalsIgnoreCase("UploadResponse"))
                 {

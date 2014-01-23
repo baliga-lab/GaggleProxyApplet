@@ -26,7 +26,9 @@ import java.rmi.RemoteException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.UUID;
 
 //import org.apache.commons.logging.Log;
 
@@ -68,7 +70,8 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
     Object workflowSyncObj = null;
 
     GaggleProxyApplet applet = null;
-
+    private String GAGGLE_SERVER = "http://localhost:8000";
+    private String stateTempFolderName = "StateFiles";
 
     public ProxyGoose(GaggleProxyApplet myApplet, BossCallbackGoose callbackGoose, JSObject browser, Object workflowSyncObj) {
         try
@@ -166,6 +169,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     {
                         System.out.println("Failed to get goose names from boss " + e.getMessage());
                         e.printStackTrace();
+                        activeGooseNames = null;
                     }
                 }
                 else
@@ -182,6 +186,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                     }
                     catch (Exception e)
                     {
+                        activeGooseNames = null;
                         System.out.println("Failed to look up boss " + e.getMessage());
                         e.printStackTrace();
                     }
@@ -189,7 +194,6 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                 return null;
             }
         });
-        return activeGooseNames;
 
         /*List<String> results = new ArrayList<String>();
             for (String name : activeGooseNames) {
@@ -199,6 +203,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
             }
 
         return results.toArray(new String[0]);  */
+        return activeGooseNames;
     }
 
     public void broadcastNameList(String targetGoose, String name, String species, String[] names) {
@@ -429,7 +434,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
         }
     }
 
-    public void loadStateDelegate(final String stateid)
+    public void loadStateDelegate(final String stateid, final String[] fileids)
     {
         synchronized (workflowSyncObj)
         {
@@ -451,7 +456,7 @@ public class ProxyGoose implements Goose3, GaggleConnectionListener {
                                         System.out.println("Loading state ...");
                                         synchronized (syncObj)
                                         {
-                                            boss.loadState(stateid);
+                                            boss.loadState(stateid, fileids);
                                         }
                                     }
                                     catch (Exception ex)

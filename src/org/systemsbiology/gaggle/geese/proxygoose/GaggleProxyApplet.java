@@ -255,12 +255,12 @@ public class GaggleProxyApplet extends JApplet {
         }
     }
 
-    public void LoadStateDelegate(String stateid)
+    public void LoadStateDelegate(String stateid, String[] fileids)
     {
-        System.out.println("Load state for " + stateid);
+        System.out.println("Load state for " + stateid + " file ids " + fileids);
         if (stateid != null)
         {
-            this.goose.loadStateDelegate(stateid);
+            this.goose.loadStateDelegate(stateid, fileids);
         }
     }
 
